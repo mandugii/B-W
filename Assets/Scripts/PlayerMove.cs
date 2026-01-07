@@ -1,12 +1,14 @@
 using UnityEngine;
-
+using UnityEngine.InputSystem;
 public class PlayerMove : MonoBehaviour
 {
-    float moveSpeed = 5f;
-    
+    public float moveSpeed = 5f;
+    Vector2 moveInput;
+    Vector3 dir;
+
     CharacterController cc;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
         cc = GetComponent<CharacterController>();
     }
@@ -14,13 +16,21 @@ public class PlayerMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
-        Vector3 dir=new Vector3(h,0,v);
-        dir=dir.normalized;
-        dir=Camera.main.transform.TransformDirection(dir);
-        
+        Transform cam = Camera.main.transform;
+        Vector3 camForward= cam.forward;
+        camForward.y = 0;
+        camForward.Normalize();
 
-        cc.Move(dir*moveSpeed*Time.deltaTime);
+        Vector3 camRight = cam.right;
+        camRight.y = 0;
+        camRight.Normalize();
+        dir = camForward * moveInput.y + camRight * moveInput.x;
+
+
+        cc.Move(dir * moveSpeed * Time.deltaTime);
+    }
+    void OnMove(InputValue value)
+    {
+        moveInput = value.Get<Vector2>();
     }
 }
